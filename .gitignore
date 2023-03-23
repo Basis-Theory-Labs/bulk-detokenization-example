@@ -1,0 +1,7 @@
+node_modules
+**/*.tfvars
+**/*.tfstate
+**/*.tfstate.backup
+.terraform
+.idea
+.DS_Store
