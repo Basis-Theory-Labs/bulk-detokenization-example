@@ -35,8 +35,7 @@ curl -L -X POST 'https://api-dev.basistheory.com/reactors/{{reactor_id}}/react' 
 -H 'BT-API-KEY: {{invoker_api_key}}' \
 --data-raw '{
   "args": {
-      "count": 1,
-      "token": "6439b6be-82b3-4b0b-a6d2-597843bfc617"
+      "tokenIds": ["6439b6be-82b3-4b0b-a6d2-597843bfc617"]
   },
   "callback_url": "https://boxay5ij3yzwx2l.m.pipedream.net",
   "timeout_ms": 120000
@@ -45,11 +44,10 @@ curl -L -X POST 'https://api-dev.basistheory.com/reactors/{{reactor_id}}/react' 
 
 > Make sure to replace the variables above with the Terraform outputs stored in Terraform state.
 
-| Parameter      | Description                                                           |
-|----------------|-----------------------------------------------------------------------|
-| `args.count`   | A `number` to simulate the count "n" of tokens to read from the vault |
-| `args.token`   | The token id to read "n" times                                        |
-| `callback_url` | A webhook to call with the results of the Reactor run                 |
-| `timeout_ms`   | Timeout for the Reactor function to run                               |
+| Parameter       | Description                                           |
+|-----------------|-------------------------------------------------------|
+| `args.tokenIds` | The tokens (id) to detokenize                         |
+| `callback_url`  | A webhook to call with the results of the Reactor run |
+| `timeout_ms`    | Timeout for the Reactor function to run               |
 
 The `callback_url` will be called with the contents returned by the Reactor function.

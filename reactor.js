@@ -1,15 +1,4 @@
 /**
- * Fetch tokens in parallel
- * @param bt
- * @param tokens
- * @returns {Promise<Awaited<unknown>[]>}
- */
-const detokenize = (bt, tokens) =>
-  Promise.all(
-    tokens.map((token) => bt.tokens.retrieve(token).then((t) => t.data))
-  );
-
-/**
  * Splits an array in several chunks of fixed length
  * @param array
  * @param chunkSize
@@ -23,6 +12,28 @@ const chunkify = (array, chunkSize) =>
   }, []);
 
 /**
+ * Detokenizes a bulk of tokens sequentially
+ * @param bt
+ * @param tokenIds
+ * @returns {Promise<*[]>}
+ */
+const detokenizeBulk = async (bt, tokenIds) => {
+  // splits array in several chunks of 100 records each
+  const chunks = chunkify(tokenIds, 100);
+
+  let tokens = [];
+  // sequentially detokenizes 100 tokens per time
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const { data } = await bt.tokens.list({
+      id: chunk,
+    });
+    tokens = [...tokens, ...data];
+  }
+  return tokens;
+};
+
+/**
  * Reactor main function
  * @param req
  * @returns {Promise<{raw: {runMillis: number, count: number}}>}
@@ -32,31 +43,19 @@ module.exports = async (req) => {
 
   const {
     bt,
-    args: { token, count },
+    args: { tokenIds },
   } = req;
 
-  // mock tokens array
-  const tokens = new Array(count).fill(token);
+  const tokens = await detokenizeBulk(bt, tokenIds);
 
-  // split array in several chunks
-  const chunks = chunkify(tokens, 10);
-
-  let data = [];
-  // sequentially detokenizes 10 tokens per time
-  for (let i = 0; i < chunks.length; i++) {
-    const chunk = await detokenize(bt, chunks[i]);
-    data = [...data, ...chunk];
-  }
-
-  // do something with data
-  // data[i]
+  // do something with the tokens
 
   const hrEnd = process.hrtime(hrStart);
   const runMillis = hrEnd[0] * 1000 + hrEnd[1] / 1000000;
 
   return {
     raw: {
-      count,
+      count: tokens.length,
       runMillis,
     },
   };
