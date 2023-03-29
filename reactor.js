@@ -27,6 +27,7 @@ const detokenizeBulk = async (bt, tokenIds) => {
     const chunk = chunks[i];
     const { data } = await bt.tokens.list({
       id: chunk,
+      size: chunk.length,
     });
     tokens = [...tokens, ...data];
   }
